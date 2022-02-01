@@ -56,4 +56,14 @@ class BrCard {
         const number = this.version? parseInt(this.version.split('-')[1]) : 0
         this.version = `${Date.now()}-${number}`
     }
+
+    /**
+     * Updates this class from the data stored in the Foundry card
+     */
+    update_from_card() {
+        const data = this.get_message().getFlag('betterrolls-swade2',
+            'br-card-data')
+        this.id = data.id
+        this.version = data.version
+    }
 }
