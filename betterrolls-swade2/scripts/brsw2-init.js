@@ -25,7 +25,7 @@ Hooks.once("setup", async function () {
 Hooks.on(`ready`, () => {
     console.log('Better Rolls 2 for SWADE | Ready');
     // Create a base object to hook functions
-    game.brsw = {};
+    game.brsw = {card_array: []};
     game.brsw.get_action_from_click = get_action_from_click;
     attribute_card_hooks();
     skill_card_hooks();
@@ -42,7 +42,7 @@ Hooks.on(`ready`, () => {
     loadTemplates(templatePaths).then(() => {
         console.log("Better Rolls templates preloaded")
     });
-    // Collapse the char window if needed
+    // Collapse the chat window if needed
     if (game.settings.get('betterrolls-swade2', 'collapse-chat-window')) {
         $('.brws-common-modifiers').addClass('brsw-collapsed');
         $('.brsw-chat-form i').removeClass('fa-caret-down').addClass('fa-caret-right');
