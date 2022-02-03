@@ -5,21 +5,26 @@ import {broofa, getWhisperData} from "./utils.js";
 export class BrCard {
     /**
      * Class constructor
-     * @param {ChatMessage, string, null} message: ChatMessage or message id
+     * @param {ChatMessage, string} message: ChatMessage or message id
      */
     constructor(message) {
         if (message instanceof ChatMessage) {
             this._message = message
             this.message_id = message.id
-            if (! this._message.data.flags['betterrolls-swade2']?.type) {
+            let flags = this._message.getFlag('betterrolls-swade2',
+                'br-card-data')
+            // If flags we are re-creating from a stored card else really new
+            if (flags) {
+                this.update_from_card()
+            } else {
+                this.id = broofa()
+                this.version = `0-0`
                 this.init_ChatMessage()
             }
         } else {
             this._message = undefined
             this.message_id = message
         }
-        this.id = broofa()
-        this.version = `0-0`
         game.brsw.card_hash[this.id] = this
     }
 
@@ -39,7 +44,8 @@ export class BrCard {
             },
 //            type: CONST.CHAT_MESSAGE_TYPES.ROLL,
             blind: whisper_data.blind,
-            flags: {'betterrolls-swade2': {type: 'BrBaseClass'}},
+            flags: {'betterrolls-swade2': {'br-card-data':
+                        this.as_simple_object()}},
 //            roll: new Roll("0"),
 //            rollMode: whisper_data.rollMode
         }
