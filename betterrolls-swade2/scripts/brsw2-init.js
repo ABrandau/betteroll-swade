@@ -13,19 +13,20 @@ import {register_actions, SystemGlobalConfiguration, WorldGlobalActions} from ".
 import {activate_incapacitation_card_listeners} from "./incapacitation_card.js";
 import {OptionalRulesConfiguration} from "./optinal_rules.js";
 import {modifyTokenBars} from "./tokenbars.js";
+import {BrCard} from "./BrCard.js";
 
 // Startup scripts
 
 // Token Bar modifications
 Hooks.once("setup", async function () {
   modifyTokenBars();
+  game.brsw = {card_hash: {}};
 })
 
 // Base Hook
 Hooks.on(`ready`, () => {
     console.log('Better Rolls 2 for SWADE | Ready');
     // Create a base object to hook functions
-    game.brsw = {card_hash: {}};
     game.brsw.get_action_from_click = get_action_from_click;
     attribute_card_hooks();
     skill_card_hooks();
@@ -69,6 +70,20 @@ Hooks.on(`ready`, () => {
 // Hooks on render
 
 Hooks.on('renderChatMessage', (message, html) => {
+    const new_card_data = message.getFlag('betterrolls-swade2', 'br-card-data')
+    if (new_card_data) {
+        // New class-based message
+        if (game.brsw.card_hash.hasOwnProperty(new_card_data.id)) {
+            const old_card_instance = game.brsw.card_hash[new_card_data.id]
+            if (new_card_data.version > old_card_instance.version) {
+                // Update card
+                old_card_instance.update_from_card()
+            }
+        } else {
+            // New card
+            game.brsw.card_hash[new_card_data.id] = new BrCard(message)
+        }
+    }
     let card_type = message.getFlag('betterrolls-swade2', 'card_type')
     if (card_type) {
         // This chat card is one of ours
@@ -195,6 +210,13 @@ Hooks.once('diceSoNiceReady', () => {
             item.sheet.render(true);
         })
     })
+})
+
+Hooks.on('deleteChatMessage', (message) => {
+    const br_card_data = message.getFlag('betterrolls-swade2', 'br-card-data')
+    if (br_card_data) {
+        delete game.brsw.card_hash[br_card_data.id]
+    }
 })
 
 

@@ -11,19 +11,19 @@ export class BrCard {
         if (message instanceof ChatMessage) {
             this._message = message
             this.message_id = message.id
-            let flags = this._message.getFlag('betterrolls-swade2',
-                'br-card-data')
-            // If flags we are re-creating from a stored card else really new
-            if (flags) {
-                this.update_from_card()
-            } else {
-                this.id = broofa()
-                this.version = `0-0`
-                this.init_ChatMessage()
-            }
         } else {
-            this._message = undefined
+            this._message = game.message.get(message)
             this.message_id = message
+        }
+        let flags = this._message.getFlag('betterrolls-swade2',
+            'br-card-data')
+        // If flags we are re-creating from a stored card else really new
+        if (flags) {
+            this.update_from_card()
+        } else {
+            this.id = broofa()
+            this.version = `0-0`
+            this.init_ChatMessage()
         }
         game.brsw.card_hash[this.id] = this
     }
@@ -69,7 +69,8 @@ export class BrCard {
         this.update_version()
         const message = this.get_message()
         await message.setFlag('betterrolls-swade2', 'br-card-data',
-            this.as_simple_object)
+            this.as_simple_object())
+        message.render(true)
     }
 
     /**
@@ -86,7 +87,7 @@ export class BrCard {
      */
     update_version() {
         const number = this.version? parseInt(this.version.split('-')[1]) : 0
-        this.version = `${Date.now()}-${number}`
+        this.version = `${Date.now()}-${number + 1}`
     }
 
     /**
