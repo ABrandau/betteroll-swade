@@ -1,23 +1,49 @@
 // Base class for the cards
-/* globals ChatMessage, game */
+/* globals ChatMessage, game, CONST, Roll */
 
-import {broofa} from "./utils.js";
-
-class BrCard {
+import {broofa, getWhisperData} from "./utils.js";
+export class BrCard {
     /**
      * Class constructor
-     * @param {ChatMessage, string} message: ChatMessage or message id
+     * @param {ChatMessage, string, null} message: ChatMessage or message id
      */
     constructor(message) {
         if (message instanceof ChatMessage) {
             this._message = message
             this.message_id = message.id
+            if (! this._message.data.flags['betterrolls-swade2']?.type) {
+                this.init_ChatMessage()
+            }
         } else {
             this._message = undefined
             this.message_id = message
         }
         this.id = broofa()
         this.version = `0-0`
+        game.brsw.card_hash[this.id] = this
+    }
+
+    /**
+     * Creates a new Foundry ChatMessage
+     */
+    init_ChatMessage() {
+        const whisper_data = getWhisperData();
+        let messageData = {
+            id: this.message_id,
+            user: game.user.id,
+            content: '<p>Default content, likely an error in Better Rolls</p>',
+            speaker: {
+                actor: '',
+                token: '',
+                alias: origin.name
+            },
+//            type: CONST.CHAT_MESSAGE_TYPES.ROLL,
+            blind: whisper_data.blind,
+            flags: {'betterrolls-swade2': {type: 'BrBaseClass'}},
+//            roll: new Roll("0"),
+//            rollMode: whisper_data.rollMode
+        }
+        this._message.update(messageData)
     }
 
     /**

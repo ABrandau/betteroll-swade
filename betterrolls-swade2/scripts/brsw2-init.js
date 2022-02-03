@@ -25,7 +25,7 @@ Hooks.once("setup", async function () {
 Hooks.on(`ready`, () => {
     console.log('Better Rolls 2 for SWADE | Ready');
     // Create a base object to hook functions
-    game.brsw = {card_array: []};
+    game.brsw = {card_hash: {}};
     game.brsw.get_action_from_click = get_action_from_click;
     attribute_card_hooks();
     skill_card_hooks();
