@@ -6,7 +6,7 @@ import {BRSW_CONST, get_action_from_click, get_actor_from_message,
     BRWSRoll, roll_trait, process_common_actions} from "./cards_common.js";
 import {create_actions_array, get_global_action_from_name} from "./global_actions.js";
 import { run_macros } from "./item_card.js";
-import {BrAttributeCard} from "./AttributeCard.js"
+import {create_attribute_class_card} from "./AttributeCard.js"
 
 /**
 / Translation map for attributes
@@ -105,7 +105,7 @@ async function attribute_click_listener(ev, target) {
     const attribute_id = ev.currentTarget.parentElement.parentElement.dataset.attribute ||
         ev.currentTarget.parentElement.dataset.attribute
     // Show card
-    const message = new BrAttributeCard(await ChatMessage.create({}))
+    const message = create_attribute_class_card()
     if (action.includes('trait')) {
         await roll_attribute(message, $(message.data.content), false)
     }

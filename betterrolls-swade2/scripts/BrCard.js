@@ -13,7 +13,7 @@ export class BrCard {
             this._message = message
             this.message_id = message.id
         } else {
-            this._message = game.message.get(message)
+            this._message = game.messages.get(message)
             this.message_id = message
         }
         let flags = this._message.getFlag('betterrolls-swade2',
@@ -34,22 +34,18 @@ export class BrCard {
      * Creates a new Foundry ChatMessage
      */
     init_ChatMessage() {
-        const whisper_data = getWhisperData();
+        const whisper_data = getWhisperData()
+        const empty_roll = new Roll("0").roll({async: false})
         let messageData = {
             id: this.message_id,
-            user: game.user.id,
-            content: '<p>Default content, likely an error in Better Rolls</p>',
+            content: '<p>Class bassed default content, likely an error in Better Rolls</p>',
             speaker: {
                 actor: '',
                 token: '',
                 alias: origin.name
             },
-//            type: CONST.CHAT_MESSAGE_TYPES.ROLL,
-            blind: whisper_data.blind,
             flags: {'betterrolls-swade2': {'br-card-data':
                         this.as_simple_object()}},
-//            roll: new Roll("0"),
-//            rollMode: whisper_data.rollMode
         }
         this._message.update(messageData)
     }
@@ -102,4 +98,25 @@ export class BrCard {
         this.version = data.version
         this.type = data.type || 'base'
     }
+}
+
+/**
+ * This function creates an empty card to be used as a template
+ * @return {ChatMessage}
+ */
+export async function create_empty_roll_ChatMessage() {
+    const empty_roll = new Roll("0").roll({async: false})
+    const whisper_data = getWhisperData();
+    let chatData = {
+        user: game.user.id,
+        content: '<p>Default content, likely an error in Better Rolls</p>',
+        blind: whisper_data.blind,
+        roll: empty_roll,
+        type: CONST.CHAT_MESSAGE_TYPES.ROLL,
+        rollMode: whisper_data.rollMode
+    }
+    if (whisper_data.whisper) {
+        chatData.whisper = whisper_data.whisper
+    }
+    return ChatMessage.create(chatData);
 }
