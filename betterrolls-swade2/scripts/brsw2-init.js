@@ -14,6 +14,7 @@ import {activate_incapacitation_card_listeners} from "./incapacitation_card.js";
 import {OptionalRulesConfiguration} from "./optinal_rules.js";
 import {modifyTokenBars} from "./tokenbars.js";
 import {BrCard} from "./BrCard.js";
+import {BrAttributeCard} from "./AttributeCard.js";
 
 // Startup scripts
 
@@ -81,7 +82,11 @@ Hooks.on('renderChatMessage', (message, html) => {
             }
         } else {
             // New card
-            game.brsw.card_hash[new_card_data.id] = new BrCard(message)
+            if (new_card_data.type === 'attribute') {
+                game.brsw.card_hash[new_card_data.id] = new BrAttributeCard(message)
+            } else {
+                game.brsw.card_hash[new_card_data.id] = new BrCard(message, undefined)
+            }
         }
     }
     let card_type = message.getFlag('betterrolls-swade2', 'card_type')

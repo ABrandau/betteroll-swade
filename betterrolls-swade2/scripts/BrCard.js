@@ -6,8 +6,9 @@ export class BrCard {
     /**
      * Class constructor
      * @param {ChatMessage, string} message: ChatMessage or message id
+     * @param {string} type: String that defines the type of Card (class)
      */
-    constructor(message) {
+    constructor(message, type) {
         if (message instanceof ChatMessage) {
             this._message = message
             this.message_id = message.id
@@ -23,6 +24,7 @@ export class BrCard {
         } else {
             this.id = broofa()
             this.version = `0-0`
+            this.type = type || 'base'
             this.init_ChatMessage()
         }
         game.brsw.card_hash[this.id] = this
@@ -79,7 +81,7 @@ export class BrCard {
      */
     as_simple_object(){
         return {'id': this.id, 'version': this.version,
-            'message_id': this.message_id}
+            'message_id': this.message_id, 'type': this.type}
     }
 
     /**
@@ -98,5 +100,6 @@ export class BrCard {
             'br-card-data')
         this.id = data.id
         this.version = data.version
+        this.type = data.type || 'base'
     }
 }

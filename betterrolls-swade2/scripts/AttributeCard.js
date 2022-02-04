@@ -8,6 +8,6 @@ export class BrAttributeCard extends BrCard {
      *      null to create it
      */
     constructor(message) {
-        super(message);
+        super(message, 'attribute');
     }
 }
