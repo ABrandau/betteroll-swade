@@ -38,12 +38,13 @@ export class BrCard {
         const empty_roll = new Roll("0").roll({async: false})
         let messageData = {
             id: this.message_id,
-            content: '<p>Class bassed default content, likely an error in Better Rolls</p>',
+            content: '<p>Class based default content, likely an error in Better Rolls</p>',
             speaker: {
                 actor: '',
                 token: '',
                 alias: origin.name
             },
+            blind: whisper_data.blind,
             flags: {'betterrolls-swade2': {'br-card-data':
                         this.as_simple_object()}},
         }
