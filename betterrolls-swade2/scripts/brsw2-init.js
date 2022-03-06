@@ -1,5 +1,5 @@
 // Init scripts for version 2
-/* globals Hooks, console, game, loadTemplates, Token, renderTemplate, Macro, CONFIG */
+/* globals Hooks, console, game, loadTemplates, Token, renderTemplate, Macro, CONFIG, foundry */
 import {activate_common_listeners, manage_selectable_click, manage_collapsables,
     BRSW_CONST, get_action_from_click} from './cards_common.js';
 import {attribute_card_hooks, activate_attribute_listeners,
@@ -250,12 +250,14 @@ function register_settings_version2() {
         name: "System_Actions_disabled",
         default: [],
         type: Array,
+        scope: "world",
         config: false
     });
     game.settings.register('betterrolls-swade2', 'optional_rules_enabled', {
         name: "Optional rules enabled",
         default: [],
         type: Array,
+        scope: "world",
         config: false
     });
     game.settings.register('betterrolls-swade2', 'world_global_actions', {
@@ -431,7 +433,7 @@ function register_settings_version2() {
 
 function register_dsn_settings(){
     // noinspection JSFileReferences
-    import('../../dice-so-nice/DiceColors.js').then(dsn => {
+    import(foundry.utils.getRoute('/modules/dice-so-nice/DiceColors.js')).then(dsn => {
         let theme_choice = {};
         // noinspection JSUnresolvedVariable
         for (let theme in dsn.COLORSETS) {

@@ -1,5 +1,25 @@
 # Changelog
 
+## Version 2.65 aka when its heavy it hurts
+* Bug: Optional rules and actions are now correctly scoped to world, not client
+* Translations: Updates from the weblate team
+* Bug: Investigator edge is now translatable
+* Feature: Support emcumbrance if it is enabled in system settings.
+* Bug: Dice Tray modifier is now reset after rolling
+* Feature: Add warnings for stunned characters and items with quantity 0 (SalieriC)
+* Global actions: Added "item_description_include" selector
+
+## Version 2.64 aka more fixes
+* Bug: Use a somewhat better import system to avoid conflicts with DsN on the Forge
+* Cards: Soak rolls now support Iron Jaw.
+
+## Version 2.63 aka Small fix
+* States: Use system incapacitated status.
+
+## Version 2.62 aka SWADE 1.0
+* Translations: Updates from the weblate team and brasilian updates from Bruno Calado
+* Compatibility: Update status code to use the new AEs.
+
 ## Version 2.61 aka Small Fixes.
 * Translations: More updates from the weblate team
 * Cards: Wait a little more after start before trying to find tokens in the canvas

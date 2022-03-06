@@ -271,10 +271,14 @@
     "BRSW.RemainingBehaviour": "Who can see the PP and ammo remaining card",
     "BRSW.RemainingBehaviour_hint": "Select who (if anybody) can see the card informing of the used and remaining shots and PP",
     "BRSW.CharacterIsShaken": "The character is shaken",
+    "BRSW.CharacterIsStunned": "The character is stunned",
+    "BRSW.QuantityIsZero": "The items quantity is zero",
     "BRSW.TargetHasDodge": "Target has dodge",
     "BRSW.EdgeName-Dodge": "dodge",
     "BRSW.NewDieResult": "New result",
     "BRSW.EditDieResult": "Edit die result",
     "BRSW.EdgeName-Assassin": "assassin",
-    "BRSW.SkillName-Research": "research"
+    "BRSW.SkillName-Research": "research",
+    "BRSW.EdgeName-IronJaw": "Iron Jaw",
+    "BRSW.EdgeName-Investigator": "Investigator"
 }

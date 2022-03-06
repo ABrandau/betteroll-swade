@@ -1,5 +1,5 @@
 // Common functions used in all cards
-/* globals Token, TokenDocument, ChatMessage, renderTemplate, game, CONST, Roll, canvas, TextEditor, getProperty, duplicate*/
+/* globals Token, TokenDocument, ChatMessage, renderTemplate, game, CONST, Roll, canvas, TextEditor, getProperty, duplicate, CONFIG, foundry, setProperty, getDocumentClass*/
 // noinspection JSUnusedAssignment
 
 import {getWhisperData, spendMastersBenny, simple_form, get_targeted_token, broofa} from "./utils.js";
@@ -67,7 +67,7 @@ export async function create_common_card(origin, render_data, chat_type, templat
         actor = origin
     }
     let render_object = create_render_options(
-        actor, render_data, template)
+        actor, render_data, template, undefined)
     let chatData = create_basic_chat_data(origin, chat_type);
     chatData.content = await renderTemplate(template, render_object);
     let message = await ChatMessage.create(chatData);
@@ -132,8 +132,9 @@ export function create_basic_chat_data(origin, type){
  * @param {object} render_data: options for this card
  * @para item: An item object
  * @param {string} template:
+ * @param {ChatMessage} message
  */
-export function create_render_options(actor, render_data, template) {
+export function create_render_options(actor, render_data, template, message) {
     render_data.bennie_avaliable = are_bennies_available(actor);
     render_data.actor = actor;
     render_data.result_master_only =
@@ -161,10 +162,17 @@ export function create_render_options(actor, render_data, template) {
         render_data.skill_title = trait ? trait.name + ' ' +
             trait_to_string(trait.data.data) : '';
     }
-    render_data.warning =
-        (actor.data.data.status.isStunned || actor.data.data.status.isShaken) ?
-        game.i18n.localize("BRSW.CharacterIsShaken") :
-        ''
+    const item = message ? get_item_from_message(message, actor) :
+        actor.items.getName(render_data.header.title)
+    if (actor.data.data.status.isStunned) {
+        render_data.warning = game.i18n.localize("BRSW.CharacterIsStunned")
+    } else if (actor.data.data.status.isShaken) {
+        render_data.warning = game.i18n.localize("BRSW.CharacterIsShaken")
+    } else if (item?.data.data.quantity <= 0) {
+        render_data.warning = game.i18n.localize("BRSW.QuantityIsZero")
+    } else {
+        render_data.warning = ''
+    }
     return render_data;
 }
 
@@ -466,9 +474,11 @@ export function get_roll_options(html, old_options){
                 element.classList.remove('brws-selected');
             }
         });
-        let tray_modifier = parseInt($("input.dice-tray__input").val());
+        const dice_tray_input = $("input.dice-tray__input")
+        let tray_modifier = parseInt(dice_tray_input.val());
         if (tray_modifier) {
             modifiers.push(tray_modifier);
+            dice_tray_input.val("0")
         }
     }
     return {additionalMods: modifiers, dmgMods: dmg_modifiers, tn: tn, rof: rof,
@@ -621,7 +631,7 @@ export async function update_message(message, actor, render_data) {
         const item = get_item_from_message(message, actor);
         render_data.skill = get_item_trait(item, actor);
     }
-    create_render_options(actor, render_data, undefined);
+    create_render_options(actor, render_data, undefined, message);
     let new_content = await renderTemplate(render_data.template, render_data);
     // noinspection JSCheckFunctionSignatures
     new_content = TextEditor.enrichHTML(new_content, {});
@@ -892,6 +902,19 @@ export async function roll_trait(message, trait_dice, dice_label, html, extra_da
         total_modifiers = __ret.total_modifiers;
         options = __ret.options;
     }
+    // Encumbrance
+    if (actor.isEncumbered) {
+        if (render_data.attribute_name === 'agility') {
+            modifiers.push({name: game.i18n.localize('SWADE.Encumbered'),
+                value: -2})
+        } else {
+            const skill = actor.items.get(render_data.trait_id)
+            if (skill && skill.data.data.attribute === 'agility') {
+                modifiers.push({name: game.i18n.localize('SWADE.Encumbered'),
+                    value: -2})
+            }
+        }
+    }
     render_data.trait_roll.is_fumble = false;
     let trait_rolls = [];
     let dice = [];
@@ -1036,7 +1059,7 @@ async function update_roll_results(trait_roll, mod_value) {
  * @param {boolean} [is_damage_roll=false]
  * @param {boolean} is_wildcard
  */
-async function override_die_result(roll_data, die_index, new_value, is_damage_roll = false, is_wildcard) {
+async function override_die_result(roll_data, die_index, new_value, is_damage_roll = false, is_wildcard = false) {
     let total_modifier = 0
     roll_data.modifiers.forEach(mod => {
         total_modifier += mod.value;
@@ -1257,7 +1280,7 @@ export function create_modifier(label, expression) {
  * Processes actions common to skill and item cards
  */
 export function process_common_actions(action, extra_data, macros) {
-    let updates = {}
+    let status = []
     let action_name = action.button_name || action.name
     action_name = action_name.includes("BRSW.") ? game.i18n.localize(action_name) : action_name
     // noinspection JSUnresolvedVariable
@@ -1282,7 +1305,7 @@ export function process_common_actions(action, extra_data, macros) {
     }
     // noinspection JSUnresolvedVariable
     if (action.self_add_status) {
-        updates[`data.status.is${action.self_add_status}`] = true
+        status.push(action.self_add_status)
     }
     if (action.hasOwnProperty('wildDieFormula')) {
         extra_data.wildDieFormula = action.wildDieFormula;
@@ -1290,7 +1313,7 @@ export function process_common_actions(action, extra_data, macros) {
     if (action.runSkillMacro) {
         macros.push(action.runSkillMacro);
     }
-    return updates
+    return status
 }
 
 /**
@@ -1329,4 +1352,32 @@ export function process_minimum_str_modifiers(item, actor, name) {
             -Math.trunc((min_str_die_size - str_die_size) / 2))
     }
     return new_mod
+}
+
+/**
+ * Applies an active effect based status to either an actor or a token
+ * @param {SwadeActor, Token, Document} target: Who to apply the status
+ * @param {string} status_name: Name of the status
+ * @param {boolean} final_state: True if we want the status applied fal
+ */
+export async function apply_status(target, status_name, final_state=true){
+    // We are going to apply the effect always to the actor
+    if (target.actor) {
+        // noinspection JSValidateTypes
+        target = target.actor
+    }
+    const effect = CONFIG.statusEffects.find(effect => effect.id === status_name)
+    const applied_effects = target.effects.find(eff => eff.getFlag('core', 'statusId') === status_name)
+    if (applied_effects && !final_state) {
+        // The actor has the effect but we want it off
+        applied_effects.delete()
+    } else if (!applied_effects && final_state) {
+        // We want the effect but the acto doesn't have it
+        const new_effect = foundry.utils.deepClone(effect)
+        new_effect.label = game.i18n.localize(new_effect.label)
+        setProperty(new_effect, 'flags.core.statusId', effect.id)
+        new_effect.id = undefined
+        const doc_class = getDocumentClass('ActiveEffect')
+        await doc_class.create(new_effect, {parent: target})
+    }
 }
