@@ -1,5 +1,5 @@
 // Base class for the cards
-/* globals ChatMessage, game, CONST, Roll */
+/* globals ChatMessage, game, CONST, Roll, renderTemplate */
 
 import {broofa, getWhisperData} from "./utils.js";
 export class BrCard {
@@ -18,6 +18,7 @@ export class BrCard {
         }
         let flags = this._message.getFlag('betterrolls-swade2',
             'br-card-data')
+        this.template = '/modules/betterrolls-swade2/templates/class_card.html'
         // If flags we are re-creating from a stored card else really new
         if (flags) {
             this.update_from_card()
@@ -33,10 +34,10 @@ export class BrCard {
     /**
      * Creates a new Foundry ChatMessage
      */
-    init_ChatMessage() {
+    async init_ChatMessage() {
         let messageData = {
             id: this.message_id,
-            content: '<p>Class based default content, likely an error in Better Rolls</p>',
+            content: await this.render_content(),
             speaker: {
                 actor: '',
                 token: '',
@@ -95,6 +96,13 @@ export class BrCard {
         this.id = data.id
         this.version = data.version
         this.type = data.type || 'base'
+    }
+
+    /**
+     * Renders the content of the message.
+     */
+    async render_content(){
+        return await renderTemplate(this.template, {});
     }
 }
 
