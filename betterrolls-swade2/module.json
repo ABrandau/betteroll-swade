@@ -48,7 +48,8 @@
   ],
   "scripts": [],
   "styles": [
-    "./css/brsw-styles.css"
+    "./css/brsw-styles.css",
+    "./css/br2-cls-styles.css"
   ],
   "packs": [],
   "url": "https://github.com/javierriveracastro/betteroll-swade/tree/version_2",

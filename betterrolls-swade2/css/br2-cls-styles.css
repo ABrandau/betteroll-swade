@@ -1,0 +1,23 @@
+.br2-section {
+    height: 4em;
+    border: #FFFFFF 1px solid;
+    border-radius: .5em;
+    margin: 0.3em;
+    text-align: center;
+}
+
+.br2-footer {
+    margin-top: 2px;
+    border-top: 2px groove #FFF;
+}
+
+.br2-footer span {
+    font-size: 10px;
+    border-right: 2px groove #FFF;
+    padding-right: 5px;
+}
+
+.br2-footer span:last-child {
+    border-right: 0;
+    padding-right: 0;
+}
