@@ -46,7 +46,8 @@ export class BrCard {
             flags: {'betterrolls-swade2': {'br-card-data':
                         this.as_simple_object()}},
         }
-        this._message.update(messageData)
+        await this._message.update(messageData)
+        this.activate_events()
     }
 
     /**
@@ -102,7 +103,26 @@ export class BrCard {
      * Renders the content of the message.
      */
     async render_content(){
-        return await renderTemplate(this.template, {});
+        return await renderTemplate(this.template, {brCard: this});
+    }
+
+    /**
+     * Activate the listeners of the card
+     */
+    activate_events() {
+        let html = $(`#brCard-${this.id}`)
+        console.log()
+        html.find('.br2-section').on('click', this.expand_section)
+    }
+
+    /**
+     * Event handler to expand and contract sections.
+     **/
+    expand_section(event) {
+        const section = $(event.currentTarget)
+        section.toggleClass('br2-limit-height')
+        section.find('.br2-section-expanded').toggleClass(
+            'br2-collapsed')
     }
 }
 

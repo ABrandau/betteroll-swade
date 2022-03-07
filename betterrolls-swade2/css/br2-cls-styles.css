@@ -1,9 +1,13 @@
 .br2-section {
-    height: 4em;
     border: #FFFFFF 1px solid;
     border-radius: .5em;
     margin: 0.3em;
     text-align: center;
+    min-height: 4em;
+}
+
+.br2-section.br2-limit-height {
+    height: 4em;
 }
 
 .br2-footer {
